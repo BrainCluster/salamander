@@ -378,6 +378,7 @@ CConfiguration::CConfiguration()
     UseIconTincture = TRUE;
     ShowPanelCaption = TRUE;
     ShowPanelZoom = TRUE;
+    DarkMode = FALSE;
     strcpy(InfoLineContent, "$(FileName): $(FileSize), $(FileDate), $(FileTime), $(FileAttributes), $(FileDOSName)");
 
     HotPathAutoConfig = TRUE;
@@ -3308,8 +3309,9 @@ void CCfgPageColors::Transfer(CTransferInfo& ti)
         for (i = 0; i < NUMBER_OF_COLORS; i++)
             TmpColors[i] = UserColors[i];
 
-        int schemes[5] = {IDS_COLORSCHEME_SALAMANDER, IDS_COLORSCHEME_EXPLORER, IDS_COLORSCHEME_NORTON, IDS_COLORSCHEME_NAVIGATOR, IDS_COLORSCHEME_CUSTOM};
-        for (i = 0; i < 5; i++)
+        int schemes[COLOR_SCHEME_CUSTOM_INDEX + 1] = {IDS_COLORSCHEME_SALAMANDER, IDS_COLORSCHEME_EXPLORER, IDS_COLORSCHEME_NORTON,
+                                                      IDS_COLORSCHEME_NAVIGATOR, IDS_COLORSCHEME_DARK, IDS_COLORSCHEME_CUSTOM};
+        for (i = 0; i < COLOR_SCHEME_CUSTOM_INDEX + 1; i++)
             SendMessage(HScheme, CB_ADDSTRING, 0, (LPARAM)LoadStr(schemes[i]));
 
         for (i = 0; i < PAGE7DATA_COUNT; i++)
@@ -3319,15 +3321,7 @@ void CCfgPageColors::Transfer(CTransferInfo& ti)
         for (i = 0; i < CFG_COLORS_BUTTONS; i++)
             SetDlgItemText(HWindow, CConfigurationPage7Masks[i], LoadStr(labels[i]));
 
-        int index = 4; // custom
-        if (CurrentColors == SalamanderColors)
-            index = 0;
-        else if (CurrentColors == ExplorerColors)
-            index = 1;
-        else if (CurrentColors == NortonColors)
-            index = 2;
-        else if (CurrentColors == NavigatorColors)
-            index = 3;
+        int index = GetColorSchemeIndex(CurrentColors);
         SendMessage(HScheme, CB_SETCURSEL, index, 0);
         SendMessage(HItem, CB_SETCURSEL, 0, 0);
 
@@ -3345,14 +3339,9 @@ void CCfgPageColors::Transfer(CTransferInfo& ti)
     else
     {
         int index = (int)SendMessage(HScheme, CB_GETCURSEL, 0, 0);
-        if (index == 0)
-            CurrentColors = SalamanderColors;
-        else if (index == 1)
-            CurrentColors = ExplorerColors;
-        else if (index == 2)
-            CurrentColors = NortonColors;
-        else if (index == 3)
-            CurrentColors = NavigatorColors;
+        SALCOLOR* schemeColors = GetColorSchemeByIndex(index);
+        if (schemeColors != NULL)
+            CurrentColors = schemeColors;
         else
         {
             CurrentColors = UserColors;
@@ -3377,15 +3366,8 @@ void CCfgPageColors::LoadColors()
 
     COLORREF* tmpColors;
     int index = (int)SendMessage(HScheme, CB_GETCURSEL, 0, 0);
-    if (index == 0)
-        tmpColors = SalamanderColors;
-    else if (index == 1)
-        tmpColors = ExplorerColors;
-    else if (index == 2)
-        tmpColors = NortonColors;
-    else if (index == 3)
-        tmpColors = NavigatorColors;
-    else
+    tmpColors = GetColorSchemeByIndex(index);
+    if (tmpColors == NULL)
         tmpColors = TmpColors;
 
     // let default values be retrieved
@@ -3633,15 +3615,8 @@ CCfgPageColors::DialogProc(UINT uMsg, WPARAM wParam, LPARAM lParam)
                 int index;
 
                 index = (int)SendMessage(HScheme, CB_GETCURSEL, 0, 0);
-                if (index == 0)
-                    tmpColors = SalamanderColors;
-                else if (index == 1)
-                    tmpColors = ExplorerColors;
-                else if (index == 2)
-                    tmpColors = NortonColors;
-                else if (index == 3)
-                    tmpColors = NavigatorColors;
-                else
+                tmpColors = GetColorSchemeByIndex(index);
+                if (tmpColors == NULL)
                     tmpColors = TmpColors;
 
                 if (id == IDC_C_ITEM1_C)
@@ -3785,22 +3760,14 @@ MENU_TEMPLATE_ITEM CfgPageColorsMenu3[] =
             if (cmd != 0)
             {
                 int index = (int)SendMessage(HScheme, CB_GETCURSEL, 0, 0);
-                if (index != 4)
+                if (index != COLOR_SCHEME_CUSTOM_INDEX)
                 {
-                    COLORREF* colors;
-                    if (index == 0)
-                        colors = SalamanderColors;
-                    else if (index == 1)
-                        colors = ExplorerColors;
-                    else if (index == 2)
-                        colors = NortonColors;
-                    else if (index == 3)
-                        colors = NavigatorColors;
+                    COLORREF* colors = GetColorSchemeByIndex(index);
 
                     int i;
                     for (i = 0; i < NUMBER_OF_COLORS; i++)
                         TmpColors[i] = colors[i];
-                    SendMessage(HScheme, CB_SETCURSEL, 4, 0);
+                    SendMessage(HScheme, CB_SETCURSEL, COLOR_SCHEME_CUSTOM_INDEX, 0);
                 }
 
                 if (cmd == 1 || cmd == 3)

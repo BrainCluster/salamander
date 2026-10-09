@@ -249,7 +249,14 @@ BOOL CFilesWindow::ReadDirectory(HWND parent, BOOL isRefresh)
             }
         }
         else
+        {
             upDir = strlen(GetPath()) > 3;
+            if (!upDir && Plugins.GetThisPCPluginFSName()) // root of a drive ("C:\"): ".." leads to "This PC"
+            {
+                upDir = TRUE;
+                UNCRootUpDir = TRUE; // there is no real ".." on disk, the up-dir item is created artificially
+            }
+        }
 
         CALL_STACK_MESSAGE1("CFilesWindow::ReadDirectory::disk2");
 
@@ -576,8 +583,8 @@ BOOL CFilesWindow::ReadDirectory(HWND parent, BOOL isRefresh)
 #endif                                     // _WIN64
                     if (len == 2 && *st == '.' && *(st + 1) == '.')
                     { // handling ".."
-                        if (GetPath()[3] != 0)
-                            Dirs->Insert(0, file); // except of root...
+                        if (GetPath()[3] != 0 || UNCRootUpDir) // except of root... (unless ".." leads to Nethood or This PC)
+                            Dirs->Insert(0, file);
                         else
                         {
                             if (file.Name != NULL)

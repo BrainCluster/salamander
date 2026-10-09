@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  Local build setup: after salamand.exe is built, copy the data files that
+  src\vcxproj\!populate_build_dir.cmd would copy (toolbar images, conversion tables,
+  plugin extras) into the build directory. The VC runtime DLLs are not copied,
+  they are installed with Visual Studio.
+-->
+<Project>
+  <Target Name="OpenSalPopulateBuildDir" AfterTargets="Build" Condition="'$(MSBuildProjectName)' == 'salamand'">
+    <PropertyGroup>
+      <_OpenSalRoot>$(MSBuildThisFileDirectory)</_OpenSalRoot>
+    </PropertyGroup>
+    <ItemGroup>
+      <_OpenSalToolbars Include="$(_OpenSalRoot)src\res\toolbars\*.*" />
+      <_OpenSalConvert Include="$(_OpenSalRoot)convert\**\convert.cfg;$(_OpenSalRoot)convert\**\*.tab" />
+      <_OpenSalAutomationScripts Include="$(_OpenSalRoot)src\plugins\automation\sample-scripts\*.*" />
+      <_OpenSalIEViewerCss Include="$(_OpenSalRoot)src\plugins\ieviewer\cmark-gfm\css\*.*" />
+      <_OpenSalZip2Sfx Include="$(_OpenSalRoot)src\plugins\zip\zip2sfx\readme.txt;$(_OpenSalRoot)src\plugins\zip\zip2sfx\sam_cz.set;$(_OpenSalRoot)src\plugins\zip\zip2sfx\sample.set" />
+    </ItemGroup>
+    <Copy SourceFiles="@(_OpenSalToolbars)" DestinationFolder="$(OutDir)toolbars" SkipUnchangedFiles="true" />
+    <Copy SourceFiles="@(_OpenSalConvert)" DestinationFiles="@(_OpenSalConvert->'$(OutDir)convert\%(RecursiveDir)%(Filename)%(Extension)')" SkipUnchangedFiles="true" />
+    <Copy SourceFiles="@(_OpenSalAutomationScripts)" DestinationFolder="$(OutDir)plugins\automation\scripts" SkipUnchangedFiles="true" />
+    <Copy SourceFiles="@(_OpenSalIEViewerCss)" DestinationFolder="$(OutDir)plugins\ieviewer\css" SkipUnchangedFiles="true" />
+    <Copy SourceFiles="@(_OpenSalZip2Sfx)" DestinationFolder="$(OutDir)plugins\zip\zip2sfx" SkipUnchangedFiles="true" />
+  </Target>
+</Project>

@@ -132,6 +132,7 @@
 // 102 = 4.00b1 (DB177) only to transfer plugin configuration from version 4.00b1 (DB171)
 // 103 = 4.00           only to transfer plugin configuration from version 4.00b1 (DB177)
 // 104 = 5.00           only to transfer plugin configuration from version 4.00, first Open Salamander release
+// 105 = 5.00 (dev)     new "This PC" plugin (thispc) must be auto-installed into existing configurations
 //
 // When increasing the configuration version, add 1 to THIS_CONFIG_VERSION
 //
@@ -139,7 +140,7 @@
 // so that new plugins are auto-installed and the plugins.ver counter is reset.
 //
 
-const DWORD THIS_CONFIG_VERSION = 104;
+const DWORD THIS_CONFIG_VERSION = 105;
 
 // Configuration roots for individual Open Salamander versions.
 // The root of the current (latest) configuration is at index 0.
@@ -443,6 +444,7 @@ const char* CONFIG_FULLROWHIGHLIGHT_REG = "Full Row Highlight";
 const char* CONFIG_USEICONTINCTURE_REG = "Use Icon Tincture";
 const char* CONFIG_SHOWPANELCAPTION_REG = "Show Panel Caption";
 const char* CONFIG_SHOWPANELZOOM_REG = "Show Panel Zoom";
+const char* CONFIG_DARKMODE_REG = "Dark Mode";
 const char* CONFIG_INFOLINECONTENT_REG = "Information Line Content";
 const char* CONFIG_IFPATHISINACCESSIBLEGOTOISMYDOCS_REG = "If Path Is Inaccessible Go To My Docs";
 const char* CONFIG_IFPATHISINACCESSIBLEGOTO_REG = "If Path Is Inaccessible Go To";
@@ -1783,6 +1785,8 @@ void CMainWindow::SaveConfig(HWND parent)
                          &Configuration.ShowPanelCaption, sizeof(DWORD));
                 SetValue(actKey, CONFIG_SHOWPANELZOOM_REG, REG_DWORD,
                          &Configuration.ShowPanelZoom, sizeof(DWORD));
+                SetValue(actKey, CONFIG_DARKMODE_REG, REG_DWORD,
+                         &Configuration.DarkMode, sizeof(DWORD));
                 SetValue(actKey, CONFIG_SINGLECLICK_REG, REG_DWORD,
                          &Configuration.SingleClick, sizeof(DWORD));
                 //      SetValue(actKey, CONFIG_SHOWTIPOFTHEDAY_REG, REG_DWORD,
@@ -2276,6 +2280,8 @@ void CMainWindow::SaveConfig(HWND parent)
                     scheme = 2;
                 else if (CurrentColors == NavigatorColors)
                     scheme = 3;
+                else if (CurrentColors == DarkColors)
+                    scheme = 5; // added after custom (4) to stay compatible with older configurations
                 SetValue(actKey, SALAMANDER_CLRSCHEME_REG, REG_DWORD, &scheme, sizeof(DWORD));
 
                 SaveRGBF(actKey, SALAMANDER_CLR_FOCUS_ACTIVE_NORMAL_REG, UserColors[FOCUS_ACTIVE_NORMAL]);
@@ -2585,6 +2591,8 @@ BOOL CMainWindow::LoadConfig(BOOL importingOldConfig, const CCommandLineParams* 
                     CurrentColors = NortonColors;
                 else if (scheme == 3)
                     CurrentColors = NavigatorColors;
+                else if (scheme == 5)
+                    CurrentColors = DarkColors;
             }
 
             LoadRGBF(actKey, SALAMANDER_CLR_ITEM_FG_NORMAL_REG, UserColors[ITEM_FG_NORMAL]);
@@ -3286,6 +3294,8 @@ BOOL CMainWindow::LoadConfig(BOOL importingOldConfig, const CCommandLineParams* 
                      &Configuration.ShowPanelCaption, sizeof(DWORD));
             GetValue(actKey, CONFIG_SHOWPANELZOOM_REG, REG_DWORD,
                      &Configuration.ShowPanelZoom, sizeof(DWORD));
+            GetValue(actKey, CONFIG_DARKMODE_REG, REG_DWORD,
+                     &Configuration.DarkMode, sizeof(DWORD));
             GetValue(actKey, CONFIG_SINGLECLICK_REG, REG_DWORD,
                      &Configuration.SingleClick, sizeof(DWORD));
             //      GetValue(actKey, CONFIG_SHOWTIPOFTHEDAY_REG, REG_DWORD,

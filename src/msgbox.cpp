@@ -1012,14 +1012,14 @@ CMessageBox::DialogProc(UINT uMsg, WPARAM wParam, LPARAM lParam)
             RECT rOrig = r;
             int ySeparator = BackgroundSeparator;
             r.bottom = ySeparator;
-            FillRect(hDC, &r, (HBRUSH)(COLOR_WINDOW + 1));
+            FillRect(hDC, &r, GetSysColorBrush(COLOR_WINDOW));
             r = rOrig;
             r.top = ySeparator;
             r.bottom = r.top + 1;
-            FillRect(hDC, &r, (HBRUSH)(COLOR_3DLIGHT + 1));
+            FillRect(hDC, &r, GetSysColorBrush(COLOR_3DLIGHT));
             r = rOrig;
             r.top = ySeparator + 1;
-            FillRect(hDC, &r, (HBRUSH)(COLOR_BTNFACE + 1));
+            FillRect(hDC, &r, GetSysColorBrush(COLOR_BTNFACE));
             return TRUE;
         }
         else
@@ -1038,7 +1038,7 @@ CMessageBox::DialogProc(UINT uMsg, WPARAM wParam, LPARAM lParam)
                 COLORREF textClr = GetSysColor(COLOR_WINDOWTEXT);
                 SetTextColor(hdcStatic, textClr);
                 SetBkColor(hdcStatic, GetSysColor(COLOR_WINDOW));
-                return (INT_PTR)(HBRUSH)(COLOR_WINDOW + 1);
+                return (INT_PTR)GetSysColorBrush(COLOR_WINDOW);
             }
             break;
         }

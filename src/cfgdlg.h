@@ -290,6 +290,7 @@ struct CConfiguration
     int UseIconTincture;  // for hidden/system/selected/focused items
     int ShowPanelCaption; // should the panel caption be shown in color in the directory line?
     int ShowPanelZoom;    // should the Zoom button be shown in the directory line?
+    int DarkMode;         // use the dark color theme (experimental)
 
     char InfoLineContent[200];
 

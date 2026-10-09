@@ -470,9 +470,9 @@ CTBCustomizeDialog::DialogProc(UINT uMsg, WPARAM wParam, LPARAM lParam)
         BOOL focused = selected && GetFocus() == GetDlgItem(HWindow, dis->CtlID);
 
         if (selected && focused)
-            FillRect(hDC, &r, (HBRUSH)(COLOR_HIGHLIGHT + 1));
+            FillRect(hDC, &r, GetSysColorBrush(COLOR_HIGHLIGHT));
         else
-            FillRect(hDC, &r, (HBRUSH)(COLOR_WINDOW + 1));
+            FillRect(hDC, &r, GetSysColorBrush(COLOR_WINDOW));
 
         const char* text;
         if (separator)

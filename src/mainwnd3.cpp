@@ -1838,6 +1838,7 @@ MENU_TEMPLATE_ITEM AddToSystemMenu[] =
         BOOL oldStatusArea = Configuration.StatusArea;
         BOOL oldPanelCaption = Configuration.ShowPanelCaption;
         BOOL oldPanelZoom = Configuration.ShowPanelZoom;
+        BOOL oldDarkMode = Configuration.DarkMode;
 
         UserMenuIconBkgndReader.ResetSysColorsChanged(); // now, we start watching system color changes (user menu icon reload required)
         BOOL readingUMIcons = UserMenuIconBkgndReader.IsReadingIcons();
@@ -1914,6 +1915,9 @@ MENU_TEMPLATE_ITEM AddToSystemMenu[] =
                 if (RightPanel->DirectoryLine != NULL && RightPanel->DirectoryLine->HWindow != NULL)
                     RightPanel->DirectoryLine->Repaint();
             }
+
+            if (oldDarkMode != Configuration.DarkMode)
+                DarkMode_Apply(Configuration.DarkMode, FALSE);
 
             // main window icon
             SetWindowIcon();

@@ -2934,6 +2934,7 @@ void CCfgPageAppearance::Transfer(CTransferInfo& ti)
     ti.CheckBox(IDC_PANELCAPTION, Configuration.ShowPanelCaption);
     ti.CheckBox(IDC_PANELZOOM, Configuration.ShowPanelZoom);
     ti.CheckBox(IDC_SINGLECLICK, Configuration.SingleClick);
+    ti.CheckBox(IDC_DARKMODE, Configuration.DarkMode);
 
     ti.EditLine(IDC_INFOLINECONTENT, Configuration.InfoLineContent, 200);
     ti.EditLine(IDC_THUMBNAILSIZE, Configuration.ThumbnailSize);
@@ -3275,12 +3276,12 @@ CCfgPageChangeDrive::DialogProc(UINT uMsg, WPARAM wParam, LPARAM lParam)
             BOOL selected = (lpdis->itemState & ODS_SELECTED) != 0;
             BOOL focused = (GetFocus() == lpdis->hwndItem);
 
-            FillRect(hDC, &r, (HBRUSH)(COLOR_WINDOW + 1));
+            FillRect(hDC, &r, GetSysColorBrush(COLOR_WINDOW));
             if (selected)
             {
                 RECT rr = r;
                 InflateRect(&rr, -1, -1);
-                FillRect(hDC, &rr, (HBRUSH)(UINT_PTR)((focused ? COLOR_HIGHLIGHT : COLOR_3DFACE) + 1));
+                FillRect(hDC, &rr, GetSysColorBrush(focused ? COLOR_HIGHLIGHT : COLOR_3DFACE));
             }
 
             int textColor;

@@ -463,6 +463,78 @@ void DrawFocusRect(HDC hDC, const RECT* r, BOOL selected, BOOL editMode)
 char DrawItemBuff[1024]; // destination buffer for strings
 int DrawItemAlpDx[1024]; // for width calculations of columns with FixedWidth bit + elastic columns with smart mode
 
+// draws a fullness bar into a detailed-view column; TransferBuffer contains "\x01" + (char)(percent + 1) + label
+// (the label, e.g. "57 %", is drawn right-aligned next to the bar); 'r' is the column rectangle, 'adjR' the
+// rectangle to clear, 'y' the text baseline position; colors of the text and background are already set in 'hDC'
+static void DrawFullnessBar(HDC hDC, const RECT& r, const RECT& adjR, int y, DWORD drawFlags)
+{
+    int percent = (BYTE)TransferBuffer[1] - 1;
+    if (percent < 0)
+        percent = 0;
+    if (percent > 100)
+        percent = 100;
+    const char* label = TransferBuffer + 2;
+    int labelLen = TransferLen - 2;
+
+    ExtTextOut(hDC, r.left, y, ETO_OPAQUE, &adjR, "", 0, NULL); // clear the column
+
+    SIZE maxLabelSize;
+    GetTextExtentPoint32(hDC, "100 %", 5, &maxLabelSize);
+    RECT bar;
+    bar.left = r.left + SPACE_WIDTH / 2;
+    bar.right = r.right - SPACE_WIDTH / 2 - maxLabelSize.cx - SPACE_WIDTH / 2;
+    int height = adjR.bottom - adjR.top;
+    bar.top = adjR.top + height / 4;
+    bar.bottom = adjR.bottom - height / 4;
+    if (bar.bottom - bar.top < 4)
+    {
+        bar.top = adjR.top + 1;
+        bar.bottom = adjR.bottom - 1;
+    }
+
+    if (!(drawFlags & DRAWFLAG_MASK) && bar.right - bar.left >= 10)
+    {
+        COLORREF bk = GetBkColor(hDC);
+        int r0 = GetRValue(bk), g0 = GetGValue(bk), b0 = GetBValue(bk);
+        BOOL darkBk = (r0 * 299 + g0 * 587 + b0 * 114) / 1000 < 128;
+        int trackDelta = darkBk ? 35 : -30;
+        int borderDelta = darkBk ? 75 : -80;
+#define FULLNESS_BAR_ADJ(c, d) ((c) + (d) < 0 ? 0 : ((c) + (d) > 255 ? 255 : (c) + (d)))
+        COLORREF track = RGB(FULLNESS_BAR_ADJ(r0, trackDelta), FULLNESS_BAR_ADJ(g0, trackDelta), FULLNESS_BAR_ADJ(b0, trackDelta));
+        COLORREF border = RGB(FULLNESS_BAR_ADJ(r0, borderDelta), FULLNESS_BAR_ADJ(g0, borderDelta), FULLNESS_BAR_ADJ(b0, borderDelta));
+#undef FULLNESS_BAR_ADJ
+        COLORREF fill = percent >= 90 ? RGB(218, 38, 38) : RGB(38, 160, 218);
+
+        HBRUSH brush = CreateSolidBrush(track);
+        FillRect(hDC, &bar, brush);
+        DeleteObject(brush);
+
+        RECT used = bar;
+        InflateRect(&used, -1, -1);
+        used.right = used.left + (int)(((__int64)(used.right - used.left) * percent + 50) / 100);
+        if (used.right > used.left)
+        {
+            brush = CreateSolidBrush(fill);
+            FillRect(hDC, &used, brush);
+            DeleteObject(brush);
+        }
+
+        brush = CreateSolidBrush(border);
+        FrameRect(hDC, &bar, brush);
+        DeleteObject(brush);
+    }
+
+    if (labelLen > 0)
+    {
+        SIZE textSize;
+        GetTextExtentPoint32(hDC, label, labelLen, &textSize);
+        int deltaX = r.right - r.left - SPACE_WIDTH / 2 - textSize.cx;
+        if (deltaX < SPACE_WIDTH / 2)
+            deltaX = SPACE_WIDTH / 2;
+        ExtTextOut(hDC, r.left + deltaX, y, ETO_CLIPPED, &r, label, labelLen, NULL);
+    }
+}
+
 void CFilesWindow::DrawBriefDetailedItem(HDC hTgtDC, int itemIndex, RECT* itemRect, DWORD drawFlags)
 {
     CALL_STACK_MESSAGE_NONE
@@ -847,6 +919,10 @@ void CFilesWindow::DrawBriefDetailedItem(HDC hTgtDC, int itemIndex, RECT* itemRe
 
                     if (TransferLen == 0)
                         ExtTextOut(hDC, r.left, y, ETO_OPAQUE, &adjR, "", 0, NULL); // just clearing
+                    else if (TransferLen >= 2 && TransferBuffer[0] == '\x01')
+                    { // fullness bar (used e.g. by the "This PC" plugin): "\x01" + (char)(percent + 1) + label
+                        DrawFullnessBar(hDC, r, adjR, y, drawFlags);
+                    }
                     else
                     {
                         if (column->FixedWidth == 1) // NarrowedNameColumn does not apply here (this is not the Name column)

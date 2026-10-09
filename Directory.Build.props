@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  Local build setup: when the OPENSAL_BUILD_DIR environment variable is not set,
+  build everything (Salamander, plugins, utils) into ..\build\ next to the repository,
+  so salamand.exe finds its plugins and utils\salmon.exe.
+-->
+<Project>
+  <PropertyGroup Condition="'$(OPENSAL_BUILD_DIR)' == ''">
+    <OPENSAL_BUILD_DIR>$([System.IO.Path]::GetFullPath('$(MSBuildThisFileDirectory)..\build\'))</OPENSAL_BUILD_DIR>
+  </PropertyGroup>
+</Project>

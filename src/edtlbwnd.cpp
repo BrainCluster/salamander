@@ -596,7 +596,7 @@ void CEditListBox::OnDrawItem(LPARAM lParam)
             if (Flags & ELB_SHOWICON)
                 itemRect.left += IconSizes[ICONSIZE_16];
 
-            FillRect(lpdis->hDC, &itemRect, (HBRUSH)(UINT_PTR)(bkColor + 1));
+            FillRect(lpdis->hDC, &itemRect, GetSysColorBrush(bkColor));
             INT_PTR itemID = (INT_PTR)SendMessage(HWindow, LB_GETITEMDATA, lpdis->itemID, 0);
             if (itemID == -1)
             {
@@ -647,7 +647,7 @@ void CEditListBox::OnDrawItem(LPARAM lParam)
                         // must clear the background
                         RECT r = lpdis->rcItem;
                         r.right = IconSizes[ICONSIZE_16] + 2;
-                        FillRect(lpdis->hDC, &r, (HBRUSH)(COLOR_WINDOW + 1));
+                        FillRect(lpdis->hDC, &r, GetSysColorBrush(COLOR_WINDOW));
                     }
                 }
 

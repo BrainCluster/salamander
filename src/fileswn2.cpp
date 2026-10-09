@@ -304,6 +304,21 @@ void CFilesWindow::Execute(int index)
                             }
                         }
                     }
+                    else
+                    {
+                        if (path[0] != 0 && path[1] == ':' && Plugins.GetThisPCPluginFSName(doublePath))
+                        { // root of a drive: go to "This PC" and focus this drive
+                            char focusName[3] = {path[0], ':', 0};
+                            if (focusName[0] >= 'a' && focusName[0] <= 'z')
+                                focusName[0] = focusName[0] - 'a' + 'A';
+                            ChangePathToPluginFS(doublePath, "", -1, focusName);
+                            if (Is(ptPluginFS))
+                            {
+                                TopIndexMem.Clear(); // long jump
+                                UpdateWindow(HWindow);
+                            }
+                        }
+                    }
                     EndStopRefresh();
                     return; // nothing to shorten or we're already on Nethood path
                 }

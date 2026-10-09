@@ -3180,6 +3180,11 @@ public:
     // is not NULL, it receives the found plugin. Returns success (FALSE if no such plugin exists)
     BOOL GetFirstNethoodPluginFSName(char* fsName = NULL, CPluginData** nethoodPlugin = NULL);
 
+    // returns TRUE if the "This PC" plugin (list of all drives) is installed and supports FS;
+    // in 'fsName' (if not NULL, buffer of at least MAX_PATH) returns its FS name; the panel goes there
+    // from the root of a drive (the ".." item)
+    BOOL GetThisPCPluginFSName(char* fsName = NULL);
+
     // invokes PasswordManagerEvent method for all plugins using the Password Manager.
     // See CSalamanderGeneralAbstract::SetPluginUsesPasswordManager (loads unloaded plugins if necessary)
     void PasswordManagerEvent(HWND parent, int event);

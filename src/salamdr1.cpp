@@ -2496,7 +2496,8 @@ BOOL InitializeGraphics(BOOL colorsOnly)
     if (GetCurrentBPP() > 8)
     {
         clrMap[2].from = RGB(255, 255, 255); // white -> light gray (so it's not so harsh)
-        clrMap[2].to = RGB(235, 235, 235);
+        // in dark mode the key label text is light, so the hot key cap must stay dark enough
+        clrMap[2].to = DarkModeActive ? RGB(85, 85, 85) : RGB(235, 235, 235);
         remapWhite = TRUE;
     }
     HBITMAP hHotBottomTB = HANDLES(CreateMappedBitmap(HInstance, IDB_BOTTOMTOOLBAR, 0, clrMap, remapWhite ? 3 : 2));
@@ -4208,6 +4209,9 @@ FIND_NEW_SLG_FILE:
                     MainWindow->RefreshDirs();
                     MainWindow->FocusLeftPanel();
                 }
+
+                if (Configuration.DarkMode)
+                    DarkMode_Apply(TRUE, TRUE);
 
                 if (Configuration.ReloadEnvVariables)
                     InitEnvironmentVariablesDifferences();

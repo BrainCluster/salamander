@@ -655,7 +655,7 @@ BOOL CreateGrayscaleAndMaskBitmaps_tmp(HBITMAP hSource, COLORREF transparent, CO
         if (transparent != RGB(r, g, b) && bkColorForAlpha != RGB(r, g, b))
         {
             BYTE brightness = GetGrayscaleFromRGB(r, g, b);
-            float alpha = 0.5;
+            float alpha = DarkModeActive ? 0.35f : 0.5f; // in dark mode less blending into the dark background, otherwise disabled icons are nearly invisible
             float alphablended = (float)GetRValue(bkColorForAlpha) * alpha + (float)brightness * (1 - alpha);
             rgb[0] = rgb[1] = rgb[2] = (BYTE)alphablended;
             rgbMask[0] = rgbMask[1] = rgbMask[2] = (BYTE)0;
@@ -724,6 +724,65 @@ void RenderSVGImages(HDC hDC, int iconSize, COLORREF bkColor, const CSVGIcon* sv
 // Then append icons from shell32.dll while honoring the transparent color.
 // bkColorForAlpha specifies the color that shows through transparent icon regions (WinXP).
 //
+
+// In dark mode, icons drawn for a light toolbar (black outlines, pure blue dotted frames, maroon details)
+// are hard to see on the dark background. Every pixel darker than DARK_ICON_MIN_LUM is lightened (keeping
+// its hue) towards that luminance; the lightening is weighted by the pixel's distance from the background
+// color, so antialiased edges blended with the background fade smoothly instead of forming halos.
+// Pixels with the 'transparent' color are kept.
+#define DARK_ICON_MIN_LUM 150
+static void LightenDarkIconPixels(HBITMAP hBitmap, COLORREF transparent, COLORREF bkColor)
+{
+    HDC hDC = HANDLES(GetDC(NULL));
+    BITMAP bmp;
+    if (GetObject(hBitmap, sizeof(bmp), &bmp) == 0 || bmp.bmWidth <= 0 || bmp.bmHeight <= 0)
+    {
+        HANDLES(ReleaseDC(NULL, hDC));
+        return;
+    }
+    BITMAPINFO bi;
+    memset(&bi, 0, sizeof(bi));
+    bi.bmiHeader.biSize = sizeof(bi.bmiHeader);
+    bi.bmiHeader.biWidth = bmp.bmWidth;
+    bi.bmiHeader.biHeight = -bmp.bmHeight; // top-down
+    bi.bmiHeader.biPlanes = 1;
+    bi.bmiHeader.biBitCount = 32;
+    bi.bmiHeader.biCompression = BI_RGB;
+    int count = bmp.bmWidth * bmp.bmHeight;
+    DWORD* bits = (DWORD*)malloc(count * sizeof(DWORD));
+    if (bits != NULL && GetDIBits(hDC, hBitmap, 0, bmp.bmHeight, bits, &bi, DIB_RGB_COLORS))
+    {
+        int bkR = GetRValue(bkColor), bkG = GetGValue(bkColor), bkB = GetBValue(bkColor);
+        DWORD transp = (GetRValue(transparent) << 16) | (GetGValue(transparent) << 8) | GetBValue(transparent);
+        for (int i = 0; i < count; i++)
+        {
+            DWORD px = bits[i] & 0x00FFFFFF;
+            if (px == transp)
+                continue;
+            int r = (px >> 16) & 0xFF, g = (px >> 8) & 0xFF, b = px & 0xFF;
+            int lum = (r * 299 + g * 587 + b * 114) / 1000;
+            if (lum >= DARK_ICON_MIN_LUM)
+                continue;
+            // weight: 0 for the background color .. 1 for colors at least 75 away from it
+            double dist = sqrt((double)((r - bkR) * (r - bkR) + (g - bkG) * (g - bkG) + (b - bkB) * (b - bkB)));
+            double w = dist / 75.0;
+            if (w > 1.0)
+                w = 1.0;
+            double t = (double)(DARK_ICON_MIN_LUM - lum) / (255 - lum) * w;
+            r += (int)((255 - r) * t);
+            g += (int)((255 - g) * t);
+            b += (int)((255 - b) * t);
+            DWORD newPx = (r << 16) | (g << 8) | b;
+            if (newPx == transp) // must not become transparent
+                newPx ^= 1;
+            bits[i] = (bits[i] & 0xFF000000) | newPx;
+        }
+        SetDIBits(hDC, hBitmap, 0, bmp.bmHeight, bits, &bi, DIB_RGB_COLORS);
+    }
+    if (bits != NULL)
+        free(bits);
+    HANDLES(ReleaseDC(NULL, hDC));
+}
 
 BOOL CreateToolbarBitmaps(HINSTANCE hInstance, int resID, COLORREF transparent, COLORREF bkColorForAlpha,
                           HBITMAP& hMaskBitmap, HBITMAP& hGrayBitmap, HBITMAP& hColorBitmap, BOOL appendIcons,
@@ -923,6 +982,9 @@ exitus:
         HANDLES(DeleteObject(hTmpBitmap));
     if (hTmpMemDC != NULL)
         HANDLES(DeleteDC(hTmpMemDC));
+
+    if (ret && DarkModeActive)
+        LightenDarkIconPixels(hColorBitmap, transparent, bkColorForAlpha);
 
     if (ret)
     {

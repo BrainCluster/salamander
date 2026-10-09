@@ -1,0 +1,48 @@
+﻿// WARNING: cannot be replaced by "#pragma once" because it is included from .rc file and it seems resource compiler does not support "#pragma once"
+#ifndef __THISPC_RH2
+#define __THISPC_RH2
+
+#if defined(APSTUDIO_INVOKED) && !defined(APSTUDIO_READONLY_SYMBOLS)
+#error this file is not editable by Microsoft Visual C++
+#endif //defined(APSTUDIO_INVOKED) && !defined(APSTUDIO_READONLY_SYMBOLS)
+
+//***********************************************************************************
+//
+// icons, bitmaps, cursors
+//
+
+#define IDB_THISPC                  100
+
+//***********************************************************************************
+//
+// strings
+//
+
+#define IDS_PLUGINNAME              1000
+#define IDS_ABOUT                   1001
+#define IDS_PLUGIN_DESCRIPTION      1003
+#define IDS_DRIVEMENUTEXT           1004
+#define IDS_TITLE                   1005
+
+#define IDS_COL_LABEL               1010
+#define IDS_COL_LABEL_DESC          1011
+#define IDS_COL_TYPE                1012
+#define IDS_COL_TYPE_DESC           1013
+#define IDS_COL_TOTAL               1014
+#define IDS_COL_TOTAL_DESC          1015
+#define IDS_COL_FREE                1016
+#define IDS_COL_FREE_DESC           1017
+#define IDS_COL_USED                1018
+#define IDS_COL_USED_DESC           1019
+
+#define IDS_TYPE_FIXED              1030
+#define IDS_TYPE_REMOVABLE          1031
+#define IDS_TYPE_CDROM              1032
+#define IDS_TYPE_REMOTE             1033
+#define IDS_TYPE_RAMDISK            1034
+#define IDS_TYPE_UNKNOWN            1035
+
+#define IDS_INFOLINE_SIZE           1040
+#define IDS_INFOLINE_NOTREADY       1041
+
+#endif // __THISPC_RH2

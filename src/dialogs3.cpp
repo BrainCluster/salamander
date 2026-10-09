@@ -2266,7 +2266,7 @@ CChangeIconDialog::DialogProc(UINT uMsg, WPARAM wParam, LPARAM lParam)
 
             // draw the background
             DWORD bkColor = (lpdis->itemState & ODS_SELECTED) ? COLOR_HIGHLIGHT : COLOR_WINDOW;
-            FillRect(lpdis->hDC, &r, (HBRUSH)(DWORD_PTR)(bkColor + 1));
+            FillRect(lpdis->hDC, &r, GetSysColorBrush(bkColor));
 
             // draw the icon
             DrawIconEx(lpdis->hDC, r.left + 4, r.top + 4, Icons[lpdis->itemID], 32, 32, 0, NULL, DI_NORMAL);
@@ -2550,10 +2550,10 @@ void CWaitWindow::PaintProgressBar(HDC dc)
         r.top++;
         RECT r2 = r;
         r2.right = r2.left + done;
-        FillRect(dc, &r2, (HBRUSH)(COLOR_HIGHLIGHT + 1));
+        FillRect(dc, &r2, GetSysColorBrush(COLOR_HIGHLIGHT));
         r2 = r;
         r2.left = r2.left + done;
-        FillRect(dc, &r2, (HBRUSH)(COLOR_WINDOW + 1));
+        FillRect(dc, &r2, GetSysColorBrush(COLOR_WINDOW));
     }
     if (releaseDC)
         ReleaseDC(HWindow, dc);
@@ -2583,7 +2583,7 @@ void CWaitWindow::PaintText(HDC hDC)
         if (CacheBitmap != NULL && CacheBitmap->HMemDC != NULL)
             hDestDC = CacheBitmap->HMemDC;
 
-        FillRect(hDestDC, &r, (HBRUSH)(COLOR_BTNFACE + 1));
+        FillRect(hDestDC, &r, GetSysColorBrush(COLOR_BTNFACE));
 
         HFONT hOldFont = (HFONT)SelectObject(hDestDC, EnvFont);
         int prevBkMode = SetBkMode(hDestDC, TRANSPARENT);
@@ -2614,7 +2614,7 @@ CWaitWindow::WindowProc(UINT uMsg, WPARAM wParam, LPARAM lParam)
 
         RECT r;
         GetClientRect(HWindow, &r);
-        FillRect(hDC, &r, (HBRUSH)(COLOR_BTNFACE + 1));
+        FillRect(hDC, &r, GetSysColorBrush(COLOR_BTNFACE));
 
         PaintText(hDC);
 

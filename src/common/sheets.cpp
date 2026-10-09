@@ -597,7 +597,7 @@ CTPHCaptionWindow::WindowProc(UINT uMsg, WPARAM wParam, LPARAM lParam)
             }
         }
         else
-            FillRect(hdc, &r, (HBRUSH)(COLOR_GRAYTEXT + 1));
+            FillRect(hdc, &r, GetSysColorBrush(COLOR_GRAYTEXT));
 
         if (Text != NULL)
         {

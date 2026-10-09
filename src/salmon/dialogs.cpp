@@ -349,6 +349,115 @@ BOOL CMainDialog::StartUploadIndex(int index)
     return ret;
 }
 
+//*****************************************************************************
+//
+// Dark mode
+//
+// Salamander stores its dark mode state in HKCU\Software\Open Salamander\Bug Reporter,
+// value "Dark Mode" (DWORD); the dialog follows it.
+//
+
+extern const char* DB_ROOT_KEY;
+
+static BOOL SalmonDarkMode = FALSE;
+static HBRUSH SalmonDarkFaceBrush = NULL;  // dialog background
+static HBRUSH SalmonDarkFieldBrush = NULL; // edit background
+
+#define SALMON_DARK_FACE RGB(43, 43, 43)
+#define SALMON_DARK_FIELD RGB(30, 30, 30)
+#define SALMON_DARK_TEXT RGB(230, 230, 230)
+#define SALMON_DARK_GRAYTEXT RGB(128, 128, 128)
+
+typedef HRESULT(WINAPI* FSalmonSetWindowTheme)(HWND, LPCWSTR, LPCWSTR);
+typedef BOOL(WINAPI* FSalmonAllowDarkModeForWindow)(HWND, BOOL);
+typedef int(WINAPI* FSalmonSetPreferredAppMode)(int);
+typedef HRESULT(WINAPI* FSalmonDwmSetWindowAttribute)(HWND, DWORD, LPCVOID, DWORD);
+
+static FSalmonSetWindowTheme SalmonSetWindowTheme = NULL;
+static FSalmonAllowDarkModeForWindow SalmonAllowDarkModeForWindow = NULL;
+
+static BOOL SalmonReadDarkMode()
+{
+    DWORD value = 0;
+    DWORD size = sizeof(value);
+    HKEY hKey;
+    if (RegOpenKeyEx(HKEY_CURRENT_USER, DB_ROOT_KEY, 0, KEY_READ, &hKey) == ERROR_SUCCESS)
+    {
+        DWORD type;
+        if (RegQueryValueEx(hKey, "Dark Mode", NULL, &type, (BYTE*)&value, &size) != ERROR_SUCCESS || type != REG_DWORD)
+            value = 0;
+        RegCloseKey(hKey);
+    }
+    return value != 0;
+}
+
+static BOOL CALLBACK SalmonDarkEnumChildProc(HWND hWnd, LPARAM lParam)
+{
+    char className[32];
+    if (GetClassName(hWnd, className, _countof(className)) == 0)
+        return TRUE;
+    if (SalmonAllowDarkModeForWindow != NULL)
+        SalmonAllowDarkModeForWindow(hWnd, TRUE);
+    if (SalmonSetWindowTheme == NULL)
+        return TRUE;
+    if (lstrcmpi(className, "Button") == 0)
+    {
+        DWORD type = (DWORD)GetWindowLongPtr(hWnd, GWL_STYLE) & BS_TYPEMASK;
+        if (type == BS_PUSHBUTTON || type == BS_DEFPUSHBUTTON)
+            SalmonSetWindowTheme(hWnd, L"DarkMode_Explorer", NULL);
+        else if (type != BS_OWNERDRAW)
+            SalmonSetWindowTheme(hWnd, L"", L""); // classic look, the text color comes from WM_CTLCOLORSTATIC
+    }
+    else if (lstrcmpi(className, "Edit") == 0 || lstrcmpi(className, "ComboBox") == 0)
+        SalmonSetWindowTheme(hWnd, L"DarkMode_CFD", NULL);
+    else if (lstrcmpi(className, "ScrollBar") == 0 || lstrcmpi(className, "ListBox") == 0)
+        SalmonSetWindowTheme(hWnd, L"DarkMode_Explorer", NULL);
+    return TRUE;
+}
+
+static void SalmonApplyDarkMode(HWND hDlg)
+{
+    SalmonDarkMode = SalmonReadDarkMode();
+    if (!SalmonDarkMode)
+        return;
+
+    if (SalmonDarkFaceBrush == NULL)
+        SalmonDarkFaceBrush = CreateSolidBrush(SALMON_DARK_FACE);
+    if (SalmonDarkFieldBrush == NULL)
+        SalmonDarkFieldBrush = CreateSolidBrush(SALMON_DARK_FIELD);
+
+    HMODULE uxTheme = LoadLibrary("uxtheme.dll");
+    if (uxTheme != NULL)
+    {
+        SalmonSetWindowTheme = (FSalmonSetWindowTheme)GetProcAddress(uxTheme, "SetWindowTheme");
+        OSVERSIONINFOEXW osvi = {sizeof(osvi)};
+        typedef LONG(WINAPI * FRtlGetVersion)(OSVERSIONINFOEXW*);
+        FRtlGetVersion rtlGetVersion = (FRtlGetVersion)GetProcAddress(GetModuleHandle("ntdll.dll"), "RtlGetVersion");
+        if (rtlGetVersion != NULL && rtlGetVersion(&osvi) == 0 && osvi.dwMajorVersion >= 10 && osvi.dwBuildNumber >= 18362)
+        {
+            SalmonAllowDarkModeForWindow = (FSalmonAllowDarkModeForWindow)GetProcAddress(uxTheme, MAKEINTRESOURCEA(133));
+            FSalmonSetPreferredAppMode setPreferredAppMode = (FSalmonSetPreferredAppMode)GetProcAddress(uxTheme, MAKEINTRESOURCEA(135));
+            if (setPreferredAppMode != NULL)
+                setPreferredAppMode(2); // ForceDark: menus
+        }
+    }
+    HMODULE dwmApi = LoadLibrary("dwmapi.dll");
+    if (dwmApi != NULL)
+    {
+        FSalmonDwmSetWindowAttribute dwmSetWindowAttribute = (FSalmonDwmSetWindowAttribute)GetProcAddress(dwmApi, "DwmSetWindowAttribute");
+        if (dwmSetWindowAttribute != NULL)
+        {
+            BOOL dark = TRUE;
+            if (FAILED(dwmSetWindowAttribute(hDlg, 20, &dark, sizeof(dark)))) // DWMWA_USE_IMMERSIVE_DARK_MODE
+                dwmSetWindowAttribute(hDlg, 19, &dark, sizeof(dark));
+        }
+    }
+    if (SalmonAllowDarkModeForWindow != NULL)
+        SalmonAllowDarkModeForWindow(hDlg, TRUE);
+    EnumChildWindows(hDlg, SalmonDarkEnumChildProc, 0);
+    RedrawWindow(hDlg, NULL, NULL, RDW_INVALIDATE | RDW_ERASE | RDW_FRAME | RDW_ALLCHILDREN);
+}
+
 INT_PTR
 CMainDialog::DialogProc(UINT uMsg, WPARAM wParam, LPARAM lParam)
 {
@@ -395,7 +504,27 @@ CMainDialog::DialogProc(UINT uMsg, WPARAM wParam, LPARAM lParam)
         SendMessage(HWindow, DM_SETDEFID, IDC_SALMON_ACTION, 0);
 
         CDialog::DialogProc(uMsg, wParam, lParam);
+        SalmonApplyDarkMode(HWindow);
         return FALSE;
+    }
+
+    case WM_CTLCOLORDLG:
+    case WM_CTLCOLORSTATIC:
+    case WM_CTLCOLORBTN:
+    case WM_CTLCOLOREDIT:
+    case WM_CTLCOLORLISTBOX:
+    {
+        if (SalmonDarkMode && SalmonDarkFaceBrush != NULL && SalmonDarkFieldBrush != NULL)
+        {
+            HDC hDC = (HDC)wParam;
+            BOOL field = (uMsg == WM_CTLCOLOREDIT || uMsg == WM_CTLCOLORLISTBOX);
+            HWND hCtrl = (HWND)lParam;
+            BOOL disabled = (uMsg != WM_CTLCOLORDLG && hCtrl != NULL && !IsWindowEnabled(hCtrl));
+            SetTextColor(hDC, disabled ? SALMON_DARK_GRAYTEXT : SALMON_DARK_TEXT);
+            SetBkColor(hDC, field ? SALMON_DARK_FIELD : SALMON_DARK_FACE);
+            return (INT_PTR)(field ? SalmonDarkFieldBrush : SalmonDarkFaceBrush);
+        }
+        break;
     }
 
     case WM_DESTROY:

@@ -3657,6 +3657,23 @@ BOOL CPlugins::GetFirstNethoodPluginFSName(char* fsName, CPluginData** nethoodPl
     return FALSE;
 }
 
+BOOL CPlugins::GetThisPCPluginFSName(char* fsName)
+{
+    int i;
+    for (i = 0; i < Data.Count; i++)
+    {
+        CPluginData* p = Data[i];
+        if (p->SupportFS && p->FSNames.Count > 0 && p->DLLName != NULL &&
+            StrICmp(p->DLLName, "thispc\\thispc.spl") == 0)
+        {
+            if (fsName != NULL)
+                lstrcpyn(fsName, p->FSNames[0], MAX_PATH);
+            return TRUE;
+        }
+    }
+    return FALSE;
+}
+
 // *********************************************************************************************
 
 void CPlugins::PasswordManagerEvent(HWND parent, int event)

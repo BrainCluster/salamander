@@ -28,22 +28,22 @@
   </Import>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
     <UseDebugLibraries>false</UseDebugLibraries>
-    <PlatformToolset>v143</PlatformToolset>
+    <PlatformToolset>v145</PlatformToolset>
     <ConfigurationType>Application</ConfigurationType>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
     <UseDebugLibraries>true</UseDebugLibraries>
-    <PlatformToolset>v143</PlatformToolset>
+    <PlatformToolset>v145</PlatformToolset>
     <ConfigurationType>Application</ConfigurationType>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="Configuration">
     <UseDebugLibraries>false</UseDebugLibraries>
-    <PlatformToolset>v143</PlatformToolset>
+    <PlatformToolset>v145</PlatformToolset>
     <ConfigurationType>Application</ConfigurationType>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="Configuration">
     <UseDebugLibraries>true</UseDebugLibraries>
-    <PlatformToolset>v143</PlatformToolset>
+    <PlatformToolset>v145</PlatformToolset>
     <ConfigurationType>Application</ConfigurationType>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props">
@@ -511,6 +511,8 @@
     </ClCompile>
     <ClCompile Include="..\salamdr7.cpp">
     </ClCompile>
+    <ClCompile Include="..\darkmode.cpp">
+    </ClCompile>
     <ClCompile Include="..\salbzip2.cpp">
     </ClCompile>
     <ClCompile Include="..\salinflt.cpp">
@@ -834,6 +836,8 @@
     <ClInclude Include="..\svg.h">
     </ClInclude>
     <ClInclude Include="..\tabwnd.h">
+    </ClInclude>
+    <ClInclude Include="..\darkmode.h">
     </ClInclude>
     <ClInclude Include="..\tasklist.h">
     </ClInclude>

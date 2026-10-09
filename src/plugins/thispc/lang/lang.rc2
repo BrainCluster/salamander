@@ -1,0 +1,44 @@
+﻿//
+// lang.rc2 - resources Microsoft Visual C++ does not edit directly
+//
+
+#ifdef APSTUDIO_INVOKED
+#error this file is not editable by Microsoft Visual C++
+#endif //APSTUDIO_INVOKED
+
+/////////////////////////////////////////////////////////////////////////////
+// Add manually edited resources here...
+
+#include "..\versinfo.rh2"
+#include "versinfo.rc2"
+
+// String Table
+STRINGTABLE
+{
+    IDS_PLUGINNAME              "This PC"
+    IDS_ABOUT                   "About Plugin"
+    IDS_PLUGIN_DESCRIPTION      "Lists all drives (local, removable, optical and network) with their capacity and free space. Open it with the "".."" item in the root of a drive."
+    IDS_DRIVEMENUTEXT,          "\tThis PC"
+    IDS_TITLE                   "This PC"
+
+    IDS_COL_LABEL               "Label"
+    IDS_COL_LABEL_DESC          "Volume label or network share"
+    IDS_COL_TYPE                "Type"
+    IDS_COL_TYPE_DESC           "Drive type"
+    IDS_COL_TOTAL               "Total Size"
+    IDS_COL_TOTAL_DESC          "Total size of the drive"
+    IDS_COL_FREE                "Free Space"
+    IDS_COL_FREE_DESC           "Free space available to you"
+    IDS_COL_USED                "Used"
+    IDS_COL_USED_DESC           "Used space of the drive"
+
+    IDS_TYPE_FIXED              "Local Disk"
+    IDS_TYPE_REMOVABLE          "Removable Disk"
+    IDS_TYPE_CDROM              "CD/DVD Drive"
+    IDS_TYPE_REMOTE             "Network Drive"
+    IDS_TYPE_RAMDISK            "RAM Disk"
+    IDS_TYPE_UNKNOWN            "Drive"
+
+    IDS_INFOLINE_SIZE           "%s: %s free of %s, %s"
+    IDS_INFOLINE_NOTREADY       "%s: not ready"
+}

@@ -86,7 +86,7 @@ CTipOfTheDayWindow::PaintBodyText(HDC hDC)
 
   InflateRect(&r, -leftWidth / 8, -leftWidth / 8);
 
-  FillRect(hDC, &r, (HBRUSH)(COLOR_WINDOW + 1));
+  FillRect(hDC, &r, GetSysColorBrush(COLOR_WINDOW));
 
   int tipIndex = Configuration.LastTipOfTheDay;
   if (tipIndex >= 0 && tipIndex < Parent->Tips.Count)
@@ -140,7 +140,7 @@ CTipOfTheDayWindow::WindowProc(UINT uMsg, WPARAM wParam, LPARAM lParam)
       r.right = leftWidth;
       r.top++;
       r.bottom--;
-      FillRect(hDC, &r, (HBRUSH)(COLOR_BTNSHADOW + 1));
+      FillRect(hDC, &r, GetSysColorBrush(COLOR_BTNSHADOW));
       // place the icon stolen from Microsoft here - why does
       // everyone complain when they have such nice icons? ;-)
       DrawIcon(hDC, r.left + (r.right - r.left - 32) / 2, 16,
@@ -152,7 +152,7 @@ CTipOfTheDayWindow::WindowProc(UINT uMsg, WPARAM wParam, LPARAM lParam)
       r.left = leftWidth;
       r.bottom = topWidth;
       r.right--;
-      FillRect(hDC, &r, (HBRUSH)(COLOR_WINDOW + 1));
+      FillRect(hDC, &r, GetSysColorBrush(COLOR_WINDOW));
       r.top += leftWidth / 5;
       r.left += leftWidth / 8;
       HFONT hOldFont = (HFONT)SelectObject(hDC, HHeadingFont);
@@ -169,7 +169,7 @@ CTipOfTheDayWindow::WindowProc(UINT uMsg, WPARAM wParam, LPARAM lParam)
       r.left = leftWidth;
       r.right--;
       r.bottom--;
-      FillRect(hDC, &r, (HBRUSH)(COLOR_WINDOW + 1));
+      FillRect(hDC, &r, GetSysColorBrush(COLOR_WINDOW));
 
       PaintBodyText(hDC);
 

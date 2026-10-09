@@ -285,6 +285,9 @@
     <ClCompile Include="..\salamdr7.cpp">
       <Filter>cpp</Filter>
     </ClCompile>
+    <ClCompile Include="..\darkmode.cpp">
+      <Filter>cpp</Filter>
+    </ClCompile>
     <ClCompile Include="..\salbzip2.cpp">
       <Filter>cpp</Filter>
     </ClCompile>
@@ -663,6 +666,9 @@
       <Filter>h</Filter>
     </ClInclude>
     <ClInclude Include="..\tabwnd.h">
+      <Filter>h</Filter>
+    </ClInclude>
+    <ClInclude Include="..\darkmode.h">
       <Filter>h</Filter>
     </ClInclude>
     <ClInclude Include="..\tasklist.h">

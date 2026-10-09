@@ -103,3 +103,5 @@ lang_renamer    0x0000010039c00000
 portables       0x0000010029d00000
 lang_portables  0x0000010039d00000
 regliba         0x0000010029e00000
+thispc          0x0000010029f00000
+lang_thispc     0x0000010039f00000

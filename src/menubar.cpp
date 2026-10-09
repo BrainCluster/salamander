@@ -171,14 +171,14 @@ void CMenuBar::DrawItem(HDC hDC, int index, int x)
     RECT r2 = r;
     r2.top = 0;
     r2.bottom = 1;
-    FillRect(hDC, &r2, (HBRUSH)(COLOR_BTNFACE + 1));
+    FillRect(hDC, &r2, GetSysColorBrush(COLOR_BTNFACE));
     r2.top = Height - 1;
     r2.bottom = Height;
-    FillRect(hDC, &r2, (HBRUSH)(COLOR_BTNFACE + 1));
+    FillRect(hDC, &r2, GetSysColorBrush(COLOR_BTNFACE));
 
     int bkColor = (HotIndex == index && !Closing) ? COLOR_HIGHLIGHT : COLOR_BTNFACE;
     int textColor = (HotIndex == index && !Closing) ? COLOR_HIGHLIGHTTEXT : COLOR_BTNTEXT;
-    FillRect(hDC, &r, (HBRUSH)(UINT_PTR)(bkColor + 1));
+    FillRect(hDC, &r, GetSysColorBrush(bkColor));
 
     r.top += MENUBAR_TB_MARGIN - 1;
     r.left += MENUBAR_LR_MARGIN;

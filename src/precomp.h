@@ -90,3 +90,5 @@
 #include "lang\lang.rh"
 #include "salamand.rh"
 #include "resource.rh2"
+
+#include "darkmode.h"

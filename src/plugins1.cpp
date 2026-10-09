@@ -2178,6 +2178,8 @@ BOOL CPluginData::InitDLL(HWND parent, BOOL quiet, BOOL waitCursor, BOOL showUns
         if (waitCursor)
             oldCur = SetCursor(LoadCursor(NULL, IDC_WAIT));
         DLL = HANDLES(LoadLibrary(s));
+        if (DLL != NULL)
+            DarkMode_PatchModule(DLL); // dark mode: system colors and windows of the plugin
         if (waitCursor)
             SetCursor(oldCur);
         if (DLL == NULL) // error

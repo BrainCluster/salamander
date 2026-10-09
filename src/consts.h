@@ -1307,6 +1307,14 @@ extern SALCOLOR SalamanderColors[NUMBER_OF_COLORS]; // standard colors
 extern SALCOLOR ExplorerColors[NUMBER_OF_COLORS];   // standard colors
 extern SALCOLOR NortonColors[NUMBER_OF_COLORS];     // standard colors
 extern SALCOLOR NavigatorColors[NUMBER_OF_COLORS];  // standard colors
+extern SALCOLOR DarkColors[NUMBER_OF_COLORS];       // standard colors (dark mode)
+
+// color schemes in the order of the Colors configuration page; the last one (custom) is UserColors
+#define COLOR_SCHEME_CUSTOM_INDEX 5
+// returns the scheme colors for the index from the Colors page (NULL = custom scheme)
+SALCOLOR* GetColorSchemeByIndex(int index);
+// returns the Colors page index of the scheme (COLOR_SCHEME_CUSTOM_INDEX for UserColors)
+int GetColorSchemeIndex(SALCOLOR* colors);
 
 extern SALCOLOR ViewerColors[NUMBER_OF_VIEWERCOLORS]; // viewer colors
 

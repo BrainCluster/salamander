@@ -631,7 +631,7 @@ CToolTip::WindowProc(UINT uMsg, WPARAM wParam, LPARAM lParam)
         HDC hDC = (HDC)wParam;
         RECT r;
         GetClientRect(HWindow, &r);
-        FillRect(hDC, &r, (HBRUSH)(COLOR_INFOBK + 1));
+        FillRect(hDC, &r, GetSysColorBrush(COLOR_INFOBK));
         HFONT hOldFont = (HFONT)SelectObject(hDC, TooltipFont);
         COLORREF oldTextColor = SetTextColor(hDC, GetSysColor(COLOR_INFOTEXT));
         int oldBkMode = SetBkMode(hDC, TRANSPARENT);

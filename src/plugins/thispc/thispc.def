@@ -1,0 +1,4 @@
+LIBRARY thispc.spl
+
+EXPORTS SalamanderPluginEntry
+EXPORTS SalamanderPluginGetReqVer
